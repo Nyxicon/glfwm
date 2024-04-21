@@ -7,7 +7,6 @@
 #include "Application.hpp"
 
 namespace nyx { class WindowManager; }
-namespace nyx { class WindowEvent; }
 
 namespace nyx {
 
@@ -72,6 +71,6 @@ namespace nyx {
     the rec data back to the specific app into a callback queue. Then on the thread of the app poll the queue and execute
     the callback if it is not empty.*/
 
-}
+} // namespace
 
 #endif //GLFWM_WINDOWEVENTS_HPP

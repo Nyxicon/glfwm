@@ -43,4 +43,4 @@ namespace nyx {
         if(mouseCallback != nullptr) mouseCallback->cursorEnterCallback(entered);
     }
 
-}
+} // namespace

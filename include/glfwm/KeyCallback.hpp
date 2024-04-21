@@ -8,8 +8,9 @@ namespace nyx {
         virtual void keyCallback(int key, int scancode, int action, int mods) = 0;
         virtual void charCallback(unsigned int codepoint) = 0;
         virtual void charModsCallback(unsigned int codepoint, int mods) = 0;
+        virtual ~KeyCallback() = default;
     };
 
-}
+} // namespace
 
 #endif //GLFWM_KEYCALLBACK_HPP

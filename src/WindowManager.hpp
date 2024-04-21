@@ -29,6 +29,6 @@ namespace nyx {
         // TODO: add running var
     };
 
-}
+} // namespace
 
 #endif //GLFWM_WINDOWMANAGER_HPP

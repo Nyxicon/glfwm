@@ -8,6 +8,6 @@ namespace nyx {
         virtual void test() = 0;
     };
 
-}
+} // namespace
 
 #endif //GLFWM_JOYSTICKCALLBACK_HPP
