@@ -8,7 +8,7 @@
 #include "Application.hpp"
 #include "WindowEvents.hpp"
 
-namespace nyx { class WindowManager; }
+namespace nyx { class WindowManager; } // break GLFWM - WindowManager dependecy
 
 namespace nyx {
 
@@ -21,16 +21,18 @@ namespace nyx {
         template<class T, typename... Args>
         static T &createWindow(Args &&...args) {
             if (!nyx::GLFWM::initialized) throw std::runtime_error("GLFWM::createWindow: GLFWM not initialized.");
-            T *app = new T(*WindowHandle::createNewWindowHandle(), args...);
-            GLFWM::pushWindowEvent<CreateWindowEvent>(app->window, app);
+            // WindowManager moves ownership to unique_ptr in window class
+            T *app = new T(WindowHandle::createNewWindowHandle(), args...);
+            GLFWM::pushWindowEvent<CreateWindowEvent>(*app->windowHandle, app);
             return *app;
         }
 
         template<class T, typename... Args>
         static T &createSharedWindow(const Application *sharedApp, Args &&...args) {
             if (!nyx::GLFWM::initialized) throw std::runtime_error("GLFWM::createSharedWindow: GLFWM not initialized.");
-            T *app = new T(*WindowHandle::createNewWindowHandle(sharedApp->window.groupId), args...);
-            GLFWM::pushWindowEvent<CreateWindowEvent>(app->window, app);
+            // WindowManager moves ownership to unique_ptr in window class
+            T *app = new T(WindowHandle::createNewWindowHandle(sharedApp->windowHandle->groupId), args...);
+            GLFWM::pushWindowEvent<CreateWindowEvent>(*app->windowHandle, app);
             return *app;
         }
 
@@ -42,7 +44,6 @@ namespace nyx {
         static void pushWindowEvent2(std::unique_ptr<WindowEvent> event);
         static void pollEventsBlocking();
         static void terminate();
-
         static void recreateWindow(WindowHandle &handle);
         static void destroyWindow(WindowHandle &handle);
 

@@ -12,6 +12,7 @@ add_subdirectory(libs/glad)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+# TODO: upgrade to 3.4 https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.zip
 FetchContent_Declare(glfw URL https://github.com/glfw/glfw/releases/download/3.3.8/glfw-3.3.8.zip)
 FetchContent_MakeAvailable(glfw)
 
@@ -22,10 +23,8 @@ FetchContent_Declare(readerwriterqueue
 FetchContent_MakeAvailable(readerwriterqueue)
 
 # concurrent-queue
-add_subdirectory(libs/concurrent-queue-1.0.3) # TODO: change to fetch content
-
-#add_subdirectory(examples/libs/imgui-1.89.2)
-#target_link_libraries(imgui-1.89.2 glfw)
+FetchContent_Declare(concurrentqueue URL https://github.com/cameron314/concurrentqueue/archive/refs/tags/v1.0.4.zip)
+FetchContent_MakeAvailable(concurrentqueue)
 
 add_library(glfwm
         include/glfwm/GLFWM.hpp
@@ -37,6 +36,7 @@ add_library(glfwm
         include/glfwm/KeyCallback.hpp
         include/glfwm/MouseCallback.hpp
         include/glfwm/JoystickCallback.hpp
+        include/glfwm/WindowPlugin.hpp
 
         src/GLFWM.cpp
         src/WindowEvents.cpp
@@ -48,7 +48,7 @@ add_library(glfwm
         src/WindowManager.hpp
         src/InternalWindowEvents.cpp
         src/InternalWindowEvents.hpp
-        include/glfwm/Plugin.hpp)
+)
 
 target_include_directories(glfwm
         PUBLIC
@@ -59,7 +59,6 @@ target_link_libraries(glfwm PUBLIC glfw)
 target_link_libraries(glfwm PRIVATE concurrentqueue)
 target_link_libraries(glfwm PRIVATE readerwriterqueue)
 target_link_libraries(glfwm PUBLIC glad) # TODO: change to plugin
-#target_link_libraries(glfwm PUBLIC imgui-1.89.2)
 
 # example
 add_subdirectory(examples)

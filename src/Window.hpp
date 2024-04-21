@@ -15,46 +15,44 @@ namespace nyx {
 
     class Window {
     public:
-        Window(Application *app, WindowGroup &g, const std::string& title);
+        Window(std::unique_ptr<Application> app, WindowGroup &g);
         void init();
         void render();
+        void scheduleTermination();
         ~Window();
         Application &getApplication();
         GLFWwindow *getGlfwWindow();
         KeyCallback *getKeyCallback();
         MouseCallback *getMouseCallback();
+        bool isTerminated() const;
 
+        // move into get methods
         std::condition_variable cv;
         std::mutex mutex;
-        bool isTerminated() const {
-            return terminated;
-        }
-        void terminate() {
-            // TODO: add check to only terminate from thread that also renders it...
-            this->terminated = true;
-        }
-
         long lastFrameTime = 0;
 
     private:
-        bool terminated = false;
+        const std::unique_ptr<Application> application;
         WindowGroup &group;
-        Application *application;
-        GLFWwindow *glfwWindow;
 
+        // TODO: change to reference
+        // if application implements a listener, we would double delete it once as Application once as ...Callback
         WindowCallback *windowCallback;
         KeyCallback *keyCallback;
         MouseCallback * mouseCallback;
         JoystickCallback *joystickCallback;
 
+        std::vector<WindowPlugin*> plugins; // TODO: make unique_ptr
+        GLFWwindow *glfwWindow;
+        bool terminated = false;
         double previousTime = glfwGetTime();
         int frameCount = 0;
 
         void setWindowHints(Config &config);
-        void createWindow(Config &config, const std::string &debugTitle);
+        void createWindow(Config &config);
         void registerCallbacks(Config &config);
     };
 
-}
+} // namespace
 
 #endif //GLFWM_WINDOW_HPP

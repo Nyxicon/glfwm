@@ -34,6 +34,6 @@ namespace nyx {
         static void loop(WindowGroup &group);
     };
 
-}
+} // namespace
 
 #endif //GLFWM_WINDOWGROUP_HPP

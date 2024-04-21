@@ -3,20 +3,34 @@
 #include "Window.hpp"
 #include "WindowGroup.hpp"
 
-
 #include "glad/glad.h"
 #include "glfwm/WindowEvents.hpp"
 #include "glfwm/GLFWM.hpp"
 
 namespace nyx {
 
-    Window::Window(Application *app, WindowGroup &g, const std::string &debugTitle) : application(app), group(g),
-                                                                                      glfwWindow(nullptr) {
+    Window::Window(std::unique_ptr<Application> app, WindowGroup &g)
+            : application(std::move(app)), group(g), glfwWindow(nullptr) {
         Config config;
         this->application->configure(config);
+
+        // set default debug title
+        if (config.title.empty())
+            config.title = "Window [" + std::to_string(application->windowHandle->windowId) + "|" +
+                           std::to_string(application->windowHandle->groupId) + "]";
+
+        // let plugins alter the config if needed
+        this->plugins = std::move(config.plugins);
+        for (auto &p: this->plugins) p->interceptConfig(config);
+
+        // configure & create glfw window
         this->setWindowHints(config);
-        this->createWindow(config, debugTitle);
+        this->createWindow(config);
         glfwSetWindowUserPointer(glfwWindow, this);
+
+        for (auto &p: this->plugins) p->onWindowCreated(config, this->glfwWindow);
+
+        // register all key, mouse and window callbacks
         this->windowCallback = config.windowCallback;
         this->keyCallback = config.keyCallback;
         this->mouseCallback = config.mouseCallback;
@@ -26,12 +40,16 @@ namespace nyx {
 
     void Window::init() {
         glfwMakeContextCurrent(glfwWindow);
+        glfwSwapInterval(1); // TODO: get vsync from config
         // TODO: remove glad -> inject custom loader glad/glew through plugin
         gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
-        glfwSwapInterval(1); // TODO: get from config
+
+        for (auto &p: this->plugins) p->onWindowInit(this->glfwWindow);
+
         application->create();
         glfwMakeContextCurrent(nullptr);
         // TODO: push a "show window event" (see Window::setWindowHints)
+        // only show window once its done
     }
 
     void Window::setWindowHints(Config &config) {
@@ -138,9 +156,8 @@ namespace nyx {
         // case GLFW_REFRESH_RATE: _glfw.hints.refreshRate = value;
     }
 
-    void Window::createWindow(Config &config, const std::string &debugTitle) {
-        // TODO: use config.title
-        this->glfwWindow = glfwCreateWindow(config.width, config.height, debugTitle.c_str(), nullptr, nullptr);
+    void Window::createWindow(Config &config) {
+        this->glfwWindow = glfwCreateWindow(config.width, config.height, config.title.c_str(), nullptr, nullptr);
         if (this->glfwWindow == nullptr) throw std::runtime_error("Window::Window: Error constructing GLFW window.");
     }
 
@@ -149,7 +166,7 @@ namespace nyx {
             auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
             // reset flag and push event to properly terminate the window
             glfwSetWindowShouldClose(window, GLFW_FALSE);
-            GLFWM::pushWindowEvent<DestroyWindow>(thisWindow->getApplication().window);
+            GLFWM::pushWindowEvent<DestroyWindow>(*thisWindow->getApplication().windowHandle);
         });
 
         glfwSetFramebufferSizeCallback(glfwWindow, [](GLFWwindow *window, int width, int height) {
@@ -188,20 +205,20 @@ namespace nyx {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
                 thisWindow->group.pushInternalWindowEvent(
                         new InternalKeyEvent(
-                                thisWindow->application->window,
+                                *thisWindow->application->windowHandle,
                                 key, scancode, action, mode)
-                        );
+                );
             });
             glfwSetCharCallback(glfwWindow, [](GLFWwindow *window, unsigned int codepoint) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
                 thisWindow->group.pushInternalWindowEvent(
-                        new InternalCharEvent(thisWindow->application->window, codepoint)
-                        );
+                        new InternalCharEvent(*thisWindow->application->windowHandle, codepoint)
+                );
             });
             glfwSetCharModsCallback(glfwWindow, [](GLFWwindow *window, unsigned int codepoint, int mods) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
                 thisWindow->group.pushInternalWindowEvent(
-                        new InternalCharModsEvent(thisWindow->application->window, codepoint, mods)
+                        new InternalCharModsEvent(*thisWindow->application->windowHandle, codepoint, mods)
                 );
             });
         }
@@ -210,25 +227,25 @@ namespace nyx {
             glfwSetMouseButtonCallback(glfwWindow, [](GLFWwindow *window, int button, int action, int mods) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
                 thisWindow->group.pushInternalWindowEvent(
-                        new InternalMouseButtonEvent(thisWindow->application->window,button, action, mods)
-                        );
+                        new InternalMouseButtonEvent(*thisWindow->application->windowHandle, button, action, mods)
+                );
             });
             glfwSetCursorPosCallback(glfwWindow, [](GLFWwindow *window, double xpos, double ypos) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
                 thisWindow->group.pushInternalWindowEvent(
-                        new InternalMousePosEvent(thisWindow->application->window, xpos, ypos)
+                        new InternalMousePosEvent(*thisWindow->application->windowHandle, xpos, ypos)
                 );
             });
             glfwSetScrollCallback(glfwWindow, [](GLFWwindow *window, double xoffset, double yoffset) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
                 thisWindow->group.pushInternalWindowEvent(
-                        new InternalMouseScrollEvent(thisWindow->application->window,xoffset, yoffset)
+                        new InternalMouseScrollEvent(*thisWindow->application->windowHandle, xoffset, yoffset)
                 );
             });
-            glfwSetCursorEnterCallback(glfwWindow, [](GLFWwindow *window, int entered){
+            glfwSetCursorEnterCallback(glfwWindow, [](GLFWwindow *window, int entered) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
                 thisWindow->group.pushInternalWindowEvent(
-                        new InternalMouseEnterEvent(thisWindow->application->window, entered)
+                        new InternalMouseEnterEvent(*thisWindow->application->windowHandle, entered)
                 );
             });
         }
@@ -237,21 +254,34 @@ namespace nyx {
     }
 
     void Window::render() {
+        for (auto &p: plugins) p->preRenderWindow();
 
         // Measure speed
         double currentTime = glfwGetTime();
         frameCount++;
-        // If a second has passed.
-        if ( currentTime - previousTime >= 1.0 )
-        {
-            // Display the frame count here any way you want.
-            std::cout << frameCount << std::endl;
-
+        if (currentTime - previousTime >= 1.0) {
+            //std::cout << frameCount << std::endl; // Display the frame count here any way you want.
             frameCount = 0;
             previousTime = currentTime;
         }
 
         application->render(1.0f, lastFrameTime); // TODO: properly calc dt
+
+        for (auto &p: plugins) p->postRenderWindow();
+    }
+
+    void Window::scheduleTermination() {
+        this->application->dispose();
+        for (auto &p: this->plugins) p->dispose();
+
+        std::unique_lock<std::mutex> lk(mutex);
+        this->terminated = true;
+        lk.unlock();
+        cv.notify_one();
+    }
+
+    Window::~Window() {
+        for (auto p: plugins) delete p;
     }
 
     Application &Window::getApplication() {
@@ -262,10 +292,6 @@ namespace nyx {
         return glfwWindow;
     }
 
-    Window::~Window() {
-        delete application;
-    }
-
     KeyCallback *Window::getKeyCallback() {
         return this->keyCallback;
     }
@@ -274,4 +300,8 @@ namespace nyx {
         return this->mouseCallback;
     }
 
-}
+    bool Window::isTerminated() const {
+        return terminated;
+    }
+
+} // namespace

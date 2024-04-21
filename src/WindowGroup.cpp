@@ -1,10 +1,7 @@
 #include <iostream>
-#include "Window.hpp"
 #include "WindowGroup.hpp"
-
+#include "Window.hpp"
 #include "glfwm/GLFWM.hpp"
-#include "glad/glad.h"
-
 #include "glfwm/WindowEvents.hpp"
 
 namespace nyx {
@@ -21,19 +18,14 @@ namespace nyx {
         // Called from InternalCreateWindowEvent -> thread safe
         glfwMakeContextCurrent(window->getGlfwWindow());
         window->init();
-        // TODO: Plugin::onCreateWindow
         glfwMakeContextCurrent(nullptr);
         this->windows.push_back(window);
     }
 
     // TODO: rename render, create new loop method move while(true) to it
     void WindowGroup::loop(WindowGroup &group) {
-        // TODO: Plugin::init
         while (true) {
             // handle all queued internal window events
-
-
-
             InternalWindowEvent *event = nullptr;
             while(group.internalWindowEventQueue.try_dequeue(event)) {
                 event->handle(group);
@@ -51,29 +43,24 @@ namespace nyx {
                     group.windows.erase(group.windows.begin() + i);
                     i--;
 
-                    std::unique_lock<std::mutex> lk(window->mutex);
-                    window->terminate();
+                    window->scheduleTermination();
 
                     // TODO: call dispose from original thread ?
-
-                    lk.unlock();
-                    window->cv.notify_one();
 
                     continue; // skip rendering for this window
                 }
 
                 glfwMakeContextCurrent(window->getGlfwWindow());
 
-
                 auto start = std::chrono::high_resolution_clock::now();
 
                 window->render();
 
-                glfwSwapBuffers(window->getGlfwWindow());
-
                 auto stop = std::chrono::high_resolution_clock::now();
                 auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
                 window->lastFrameTime = duration.count();
+
+                glfwSwapBuffers(window->getGlfwWindow());
             }
 
             // if no windows remain -> terminate this thread
@@ -95,9 +82,9 @@ namespace nyx {
 
     Window *WindowGroup::getWindow(WindowHandle &handle) {
         for(auto window : windows)
-            if(window->getApplication().window.windowId == handle.windowId)
+            if(window->getApplication().windowHandle->windowId == handle.windowId)
                 return window;
         return nullptr;
     }
 
-}
+} // namespace

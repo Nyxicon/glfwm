@@ -12,25 +12,21 @@
 namespace nyx {
 
     void WindowManager::createNewWindow(Application *app) {
-        auto handle = app->window;
+        auto &handle = app->windowHandle;
 
         // create group if not found
         auto initialize = bool(false);
-        if (this->windowGroups.find(handle.groupId) == this->windowGroups.end()) {
-            this->windowGroups.insert({handle.groupId, std::unique_ptr<WindowGroup>(new WindowGroup(handle.groupId))});
+        if (this->windowGroups.find(handle->groupId) == this->windowGroups.end()) {
+            this->windowGroups.insert({handle->groupId, std::unique_ptr<WindowGroup>(new WindowGroup(handle->groupId))});
             initialize = true;
         }
+        auto &group = this->windowGroups.at(handle->groupId);
 
-        auto &group = this->windowGroups.at(handle.groupId);;
-
-        // create window | TODO: remove and replace by config.title
-        auto title = std::string();
-        title.append("id: ").append(std::to_string(handle.windowId));
-        title.append(" group: ").append(std::to_string(handle.groupId));
-        auto *window = new Window(app, *group, title);
+        // create the window
+        auto *window = new Window(std::unique_ptr<Application>(app), *group);
 
         // push window to group & start thread if group is new
-        group->pushInternalWindowEvent(new InternalCreateWindowEvent(handle, window));
+        group->pushInternalWindowEvent(new InternalCreateWindowEvent(*handle, window));
         if (initialize) group->startThread();
     }
 
@@ -45,7 +41,7 @@ namespace nyx {
     }
 
     void WindowManager::destroyWindow(WindowHandle &handle) {
-        auto window = windowGroups.at(handle.groupId)->getWindow(handle);
+        auto *window = windowGroups.at(handle.groupId)->getWindow(handle);
         if (window == nullptr) throw std::runtime_error("WindowManager::destroyWindow: Window is nullptr.");
 
         // inform window & group that window should be removed
@@ -63,7 +59,8 @@ namespace nyx {
             this->windowGroups.erase(handle.groupId);
         }
 
-        delete &handle; // TODO: remove through unique_ptr
+        // TODO: find out why this creates small new valgrind invalid reads/writes
+        delete window;
     }
 
     void WindowManager::pushWindowEvent(std::unique_ptr<WindowEvent> event) {
@@ -93,6 +90,7 @@ namespace nyx {
     void WindowManager::terminate() {
         std::cout << "terminate application" << std::endl;
         // TODO: stop accepting events before destroying
+        // -> basically stop the loop in pollEventsBlocking
     }
 
     Window *WindowManager::getWindow(WindowHandle &handle) {
@@ -100,4 +98,4 @@ namespace nyx {
         return this->windowGroups.at(handle.groupId)->getWindow(handle);
     }
 
-}
+} // namespace

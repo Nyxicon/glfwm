@@ -1,12 +1,14 @@
 #ifndef GLFWM_CONFIG_HPP
 #define GLFWM_CONFIG_HPP
 
+#include <vector>
 #include <string>
 #include "WindowHandle.hpp"
 #include "KeyCallback.hpp"
 #include "MouseCallback.hpp"
 #include "JoystickCallback.hpp"
 #include "WindowCallback.hpp"
+#include "WindowPlugin.hpp"
 
 namespace nyx {
 
@@ -35,6 +37,9 @@ namespace nyx {
         bool focusOnShow = false;
         bool scaleToMonitor = false;
 
+        bool vsync = true;
+        int fps = 60;
+
         // framebuffer
         int redBits = 8;
         int greenBits = 8;
@@ -49,17 +54,15 @@ namespace nyx {
         bool transparent = false;
         bool doubleBuffered = true;
 
-        // TODO: vsync
-
         int samples = 2;
 
-        // context
+        std::vector<WindowPlugin*> plugins;
 
     private:
         friend class Window;
         Config() = default;
     };
 
-}
+} // namespace
 
 #endif //GLFWM_CONFIG_HPP

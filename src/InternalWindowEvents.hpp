@@ -69,6 +69,6 @@ namespace nyx {
         void handle(WindowGroup &group) override;
     };
 
-}
+} // namespace
 
 #endif //GLFWM_WINDOWCALLBACKEVENTS_HPP

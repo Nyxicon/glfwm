@@ -16,4 +16,4 @@ namespace nyx {
         if(w != nullptr) glfwSetWindowTitle(w->getGlfwWindow(), newTitle.c_str());
     }
 
-}
+} // namespace
