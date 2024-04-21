@@ -19,6 +19,14 @@
 //    ImGuiContext* GImGui = NULL;           -> thread_local ImGuiContext* GImGui = NULL;
 // - imgui_internal.h:
 //    extern IMGUI_API ImGuiContext* GImGui; -> extern thread_local IMGUI_API ImGuiContext* GImGui;
+//
+// After this change it will work on Linux.
+
+// On windows you have to additionally comment out the following line in imgui_impl_glfw.cpp:
+// ::SetWindowLongPtrW((HWND)main_viewport->PlatformHandleRaw, GWLP_WNDPROC, (LONG_PTR)ImGui_ImplGlfw_WndProc);
+// I still don't know why exactly the project is crashing when this callback is set...
+// I'm still trying to find the reason and got a minimal example that is not crashing, so maybe i will slowly rewrite
+// the project to find where exactly this problem is coming from ;-;
 // ====================================================================================================================
 
 // --------------------------------------------------------------------------------------------------------------------
