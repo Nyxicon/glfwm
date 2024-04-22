@@ -61,4 +61,4 @@ target_link_libraries(glfwm PRIVATE readerwriterqueue)
 target_link_libraries(glfwm PUBLIC glad) # TODO: change to plugin
 
 # example
-add_subdirectory(examples)
+#add_subdirectory(examples)

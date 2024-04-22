@@ -35,6 +35,11 @@ namespace nyx {
         void handle(WindowManager &manager) override;
     };
 
+    struct HideWindow : public WindowEvent {
+        explicit HideWindow(WindowHandle &handle) : WindowEvent(handle) {}
+        void handle(WindowManager &manager) override;
+    };
+
     /* Exposed functions through Window class: (main thread only)
      x glfwSetWindowTitle (const char* title)
      - glfwSetWindowIcon (int width, int height, unsigned char *pixels)

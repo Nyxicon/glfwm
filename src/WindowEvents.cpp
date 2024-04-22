@@ -16,4 +16,9 @@ namespace nyx {
         if(w != nullptr) glfwSetWindowTitle(w->getGlfwWindow(), newTitle.c_str());
     }
 
+    void HideWindow::handle(WindowManager &manager) {
+        Window *w = manager.getWindow(this->windowHandle);
+        if(w != nullptr) glfwHideWindow(w->getGlfwWindow());
+    }
+
 } // namespace
