@@ -12,6 +12,8 @@ namespace nyx {
     Window::Window(std::unique_ptr<Application> app, WindowGroup &g)
             : application(std::move(app)), group(g), glfwWindow(nullptr) {
         Config config;
+        this->windowWidth = config.width;
+        this->windowHeight = config.height;
         this->application->configure(config);
 
         // set default debug title
@@ -47,6 +49,7 @@ namespace nyx {
         for (auto &p: this->plugins) p->onWindowInit(this->glfwWindow);
 
         application->create();
+        application->resize(windowWidth, windowHeight);
         glfwMakeContextCurrent(nullptr);
         // TODO: push a "show window event" (see Window::setWindowHints)
         // only show window once its done
@@ -171,6 +174,8 @@ namespace nyx {
 
         glfwSetFramebufferSizeCallback(glfwWindow, [](GLFWwindow *window, int width, int height) {
             auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
+            thisWindow->windowWidth = width;
+            thisWindow->windowHeight = height;
             thisWindow->application->resize(width, height);
         });
 

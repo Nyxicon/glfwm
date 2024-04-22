@@ -48,6 +48,8 @@ namespace nyx {
         double previousTime = glfwGetTime();
         int frameCount = 0;
 
+        int windowWidth, windowHeight;
+
         void setWindowHints(Config &config);
         void createWindow(Config &config);
         void registerCallbacks(Config &config);
