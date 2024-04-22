@@ -165,11 +165,17 @@ namespace nyx {
     }
 
     void Window::registerCallbacks(Config &config) {
-        glfwSetWindowCloseCallback(glfwWindow, [](GLFWwindow *window) {
+        glfwSetWindowCloseCallback(this->glfwWindow, [](GLFWwindow *window) {
             auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
             // reset flag and push event to properly terminate the window
             glfwSetWindowShouldClose(window, GLFW_FALSE);
-            GLFWM::pushWindowEvent<DestroyWindow>(*thisWindow->getApplication().windowHandle);
+
+            // close if window-callback returns true or doesn't exist
+            if(thisWindow->windowCallback != nullptr) {
+                if(thisWindow->windowCallback->close()) {
+                    GLFWM::pushWindowEvent<DestroyWindow>(*thisWindow->getApplication().windowHandle);
+                }
+            } else GLFWM::pushWindowEvent<DestroyWindow>(*thisWindow->getApplication().windowHandle);
         });
 
         glfwSetFramebufferSizeCallback(glfwWindow, [](GLFWwindow *window, int width, int height) {

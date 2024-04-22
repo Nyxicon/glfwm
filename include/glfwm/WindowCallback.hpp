@@ -5,7 +5,7 @@ namespace nyx {
 
     class WindowCallback {
     public:
-        virtual void test() = 0;
+        virtual bool close() = 0;
         virtual ~WindowCallback() = default;
     };
 
