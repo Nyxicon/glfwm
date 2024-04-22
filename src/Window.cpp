@@ -12,9 +12,9 @@ namespace nyx {
     Window::Window(std::unique_ptr<Application> app, WindowGroup &g)
             : application(std::move(app)), group(g), glfwWindow(nullptr) {
         Config config;
+        this->application->configure(config);
         this->windowWidth = config.width;
         this->windowHeight = config.height;
-        this->application->configure(config);
 
         // set default debug title
         if (config.title.empty())
