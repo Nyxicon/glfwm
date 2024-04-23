@@ -2,10 +2,9 @@
 #include "glfwm/GLFWM.hpp"
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
-
 #include "imgui.h"
-
 #include "DearImGuiPlugin.hpp"
+#include "GladPlugin.hpp"
 
 class Game : public nyx::Application, nyx::KeyCallback {
 public:
@@ -17,6 +16,7 @@ public:
     void configure(nyx::Config &config) override {
         config.title = "Window";
         config.keyCallback = this;
+        config.plugins.push_back(new GladPlugin());
         config.plugins.push_back(new DearImGuiPlugin());
     }
 

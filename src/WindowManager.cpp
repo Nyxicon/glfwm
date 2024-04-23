@@ -1,13 +1,12 @@
 
 #include <string>
 #include <iostream>
-#include<mutex>
+#include <mutex>
+#define GLFW_INCLUDE_NONE
+#include "GLFW/glfw3.h"
 #include "glfwm/WindowEvents.hpp"
-
 #include "WindowManager.hpp"
 #include "Window.hpp"
-
-#include "GLFW/glfw3.h"
 
 namespace nyx {
 

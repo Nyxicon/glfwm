@@ -5,12 +5,10 @@
 #include <thread>
 #include <map>
 #include "readerwriterqueue.h"
-
-#include "Window.hpp"
-#include "InternalWindowEvents.hpp"
-
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
+#include "InternalWindowEvents.hpp"
+#include "Window.hpp"
 
 namespace nyx {
 

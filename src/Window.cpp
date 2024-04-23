@@ -3,7 +3,7 @@
 #include "Window.hpp"
 #include "WindowGroup.hpp"
 
-#include "glad/glad.h"
+//#include "glad/glad.h"
 #include "glfwm/WindowEvents.hpp"
 #include "glfwm/GLFWM.hpp"
 
@@ -44,7 +44,7 @@ namespace nyx {
         glfwMakeContextCurrent(glfwWindow);
         glfwSwapInterval(1); // TODO: get vsync from config
         // TODO: remove glad -> inject custom loader glad/glew through plugin
-        gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
+        //gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
 
         for (auto &p: this->plugins) p->onWindowInit(this->glfwWindow);
 

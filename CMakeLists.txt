@@ -5,23 +5,20 @@ set(CMAKE_CXX_STANDARD 11)
 
 include(FetchContent)
 
-# glad
-add_subdirectory(libs/glad)
-
-# glfw
+# fetch glfw
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(glfw URL https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.zip)
 FetchContent_MakeAvailable(glfw)
 
-# reader-writer
+# fetch reader-writer
 FetchContent_Declare(readerwriterqueue
         GIT_REPOSITORY    https://github.com/cameron314/readerwriterqueue
         GIT_TAG           master)
 FetchContent_MakeAvailable(readerwriterqueue)
 
-# concurrent-queue
+# fetch concurrent-queue
 FetchContent_Declare(concurrentqueue URL https://github.com/cameron314/concurrentqueue/archive/refs/tags/v1.0.4.zip)
 FetchContent_MakeAvailable(concurrentqueue)
 
@@ -57,7 +54,6 @@ target_include_directories(glfwm
 target_link_libraries(glfwm PUBLIC glfw)
 target_link_libraries(glfwm PRIVATE concurrentqueue)
 target_link_libraries(glfwm PRIVATE readerwriterqueue)
-target_link_libraries(glfwm PUBLIC glad) # TODO: change to plugin
 
 # example
-add_subdirectory(examples)
+#add_subdirectory(examples)

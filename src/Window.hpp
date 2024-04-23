@@ -4,7 +4,6 @@
 #include <string>
 #include <mutex>
 #include <condition_variable>
-// TODO: check if define is needed
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
 #include "glfwm/Application.hpp"

@@ -2,7 +2,6 @@
 #define GLFWM_WINDOWEVENTS_HPP
 
 #include <utility>
-
 #include "WindowHandle.hpp"
 #include "Application.hpp"
 
