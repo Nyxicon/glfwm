@@ -42,10 +42,10 @@ namespace nyx {
             GLFWM::pushWindowEvent2(std::unique_ptr<T>(new T(args...)));
         }
         static void pushWindowEvent2(std::unique_ptr<WindowEvent> event);
-        static void pollEventsBlocking();
-        static void terminate();
         static void recreateWindow(WindowHandle &handle);
         static void destroyWindow(WindowHandle &handle);
+        static void pollEventsBlocking();
+        static void terminate();
 
     private:
         static bool initialized;

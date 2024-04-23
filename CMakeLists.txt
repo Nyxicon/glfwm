@@ -12,8 +12,7 @@ add_subdirectory(libs/glad)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-# TODO: upgrade to 3.4 https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.zip
-FetchContent_Declare(glfw URL https://github.com/glfw/glfw/releases/download/3.3.8/glfw-3.3.8.zip)
+FetchContent_Declare(glfw URL https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.zip)
 FetchContent_MakeAvailable(glfw)
 
 # reader-writer
@@ -61,4 +60,4 @@ target_link_libraries(glfwm PRIVATE readerwriterqueue)
 target_link_libraries(glfwm PUBLIC glad) # TODO: change to plugin
 
 # example
-#add_subdirectory(examples)
+add_subdirectory(examples)
