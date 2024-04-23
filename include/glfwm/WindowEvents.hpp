@@ -28,10 +28,8 @@ namespace nyx {
         void handle(WindowManager &manager) override;
     };
 
-    struct WindowTitle : public WindowEvent {
-        std::string newTitle;
-        explicit WindowTitle(WindowHandle &handle, std::string title)
-                : WindowEvent(handle), newTitle(std::move(title)) {}
+    struct ShowWindow : public WindowEvent {
+        explicit ShowWindow(WindowHandle &handle) : WindowEvent(handle) {}
         void handle(WindowManager &manager) override;
     };
 
@@ -40,29 +38,78 @@ namespace nyx {
         void handle(WindowManager &manager) override;
     };
 
+    struct WindowTitle : public WindowEvent {
+        std::string newTitle;
+        explicit WindowTitle(WindowHandle &handle, std::string title)
+                : WindowEvent(handle), newTitle(std::move(title)) {}
+        void handle(WindowManager &manager) override;
+    };
+
+    // WindowIcon glfwSetWindowIcon (int width, int height, unsigned char *pixels)
+    // new signature requires an array of GLFWImage*
+
+    struct WindowPosition : public WindowEvent {
+        int xpos, ypos;
+        explicit WindowPosition(WindowHandle &handle, int x, int y)
+                : WindowEvent(handle), xpos(x), ypos(y){}
+        void handle(WindowManager &manager) override;
+    };
+
+    struct WindowSize : public WindowEvent {
+        int width, height;
+        explicit WindowSize(WindowHandle &handle, int w, int h)
+                : WindowEvent(handle), width(w), height(h){}
+        void handle(WindowManager &manager) override;
+    };
+
+    struct WindowSizeLimits : public WindowEvent {
+        int minwidth, minheight, maxwidth, maxheight;
+        explicit WindowSizeLimits(WindowHandle &handle, int minw, int minh, int maxw, int maxh)
+                : WindowEvent(handle), minwidth(minw), minheight(minh), maxwidth(maxw), maxheight(maxh) {}
+        void handle(WindowManager &manager) override;
+    };
+
+    struct WindowAspectRatio : public WindowEvent {
+        int numer, denom;
+        explicit WindowAspectRatio(WindowHandle &handle, int n, int d) : WindowEvent(handle), numer(n), denom(d) {}
+        void handle(WindowManager &manager) override;
+    };
+
+    struct WindowOpacity : public WindowEvent {
+        float opacity;
+        explicit WindowOpacity(WindowHandle &handle, float o) : WindowEvent(handle), opacity(o) {}
+        void handle(WindowManager &manager) override;
+    };
+
+    struct IconifyWindow : public WindowEvent {
+        explicit IconifyWindow(WindowHandle &handle) : WindowEvent(handle){}
+        void handle(WindowManager &manager) override;
+    };
+
+    struct MaximizeWindow : public WindowEvent {
+        explicit MaximizeWindow(WindowHandle &handle) : WindowEvent(handle){}
+        void handle(WindowManager &manager) override;
+    };
+
+    struct RestoreWindow : public WindowEvent {
+        explicit RestoreWindow(WindowHandle &handle) : WindowEvent(handle){}
+        void handle(WindowManager &manager) override;
+    };
+
     /* Exposed functions through Window class: (main thread only)
-     x glfwSetWindowTitle (const char* title)
-     - glfwSetWindowIcon (int width, int height, unsigned char *pixels)
-     - glfwSetWindowPos (int xpos, int ypos)
-     - glfwSetWindowSizeLimits (int minwidth, int minheight, int maxwidth, int maxheight)
-     - glfwSetWindowAspectRatio (int numer, int denom)
-     - glfwSetWindowSize (int width, int height)
-     - glfwSetWindowOpacity (float opacity)
-     - glfwIconifyWindow (-)
-     - glfwRestoreWindow (-)
-     - glfwMaximizeWindow (-)
-     - glfwShowWindow (-)
-     - glfwHideWindow (-)
      - glfwFocusWindow (-)
      - glfwRequestWindowAttention (-)
      - glfwSetWindowMonitor (GLFWmonitor* mh, int xpos, int ypos, int width, int height, int refreshRate) | switch windowed & fullscreen
      - glfwSetWindowAttrib (int attrib, int value)
-       -> GLFW_DECORATED
        -> GLFW_RESIZABLE
+       -> GLFW_DECORATED
        -> GLFW_FLOATING
        -> GLFW_AUTO_ICONIFY
-       -> GLFW_FOCUS_ON_SHOW*/
+       -> GLFW_FOCUS_ON_SHOW
+       -> GLFW_MOUSE_PASSTHROUGH (glfw 3.4)
+       */
 
+    // TODO: maybe store in window class to fetch later ?
     /*Window property get functions:
     - glfwGetWindowPos
     - glfwGetWindowSize

@@ -185,27 +185,34 @@ namespace nyx {
             thisWindow->application->resize(width, height);
         });
 
-        if (this->windowCallback != nullptr) {
+        if (this->windowCallback != nullptr) { // TODO: change to use InternalEvents
             glfwSetWindowPosCallback(glfwWindow, [](GLFWwindow *window, int xpos, int ypos) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
+                if(thisWindow->windowCallback != nullptr) thisWindow->windowCallback->position(xpos, ypos);
             });
             glfwSetWindowSizeCallback(glfwWindow, [](GLFWwindow *window, int width, int height) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
+                if(thisWindow->windowCallback != nullptr) thisWindow->windowCallback->size(width, height);
             });
             glfwSetWindowRefreshCallback(glfwWindow, [](GLFWwindow *window) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
+                if(thisWindow->windowCallback != nullptr) thisWindow->windowCallback->refresh();
             });
             glfwSetWindowFocusCallback(glfwWindow, [](GLFWwindow *window, int focused) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
+                if(thisWindow->windowCallback != nullptr) thisWindow->windowCallback->focus(focused);
             });
             glfwSetWindowIconifyCallback(glfwWindow, [](GLFWwindow *window, int iconified) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
+                if(thisWindow->windowCallback != nullptr) thisWindow->windowCallback->iconify(iconified);
             });
             glfwSetWindowMaximizeCallback(glfwWindow, [](GLFWwindow *window, int maximized) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
+                if(thisWindow->windowCallback != nullptr) thisWindow->windowCallback->maximize(maximized);
             });
             glfwSetWindowContentScaleCallback(glfwWindow, [](GLFWwindow *window, float xscale, float yscale) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
+                if(thisWindow->windowCallback != nullptr) thisWindow->windowCallback->content_scale(xscale, yscale);
             });
         }
 
