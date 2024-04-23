@@ -10,8 +10,8 @@ namespace nyx {
 
     class Application {
     public:
-        const std::unique_ptr<WindowHandle> windowHandle; // TODO: rename uh to handle again
-        explicit Application(std::unique_ptr<WindowHandle> uh) : windowHandle(std::move(uh)) {}
+        const std::unique_ptr<WindowHandle> windowHandle;
+        explicit Application(std::unique_ptr<WindowHandle> handle) : windowHandle(std::move(handle)) {}
         virtual void configure(Config &config) = 0;
         virtual void create() = 0;
         virtual void render(float dt, long frameTime) = 0;
