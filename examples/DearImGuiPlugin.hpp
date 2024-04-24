@@ -1,7 +1,10 @@
 #ifndef GLFWM_DEARIMGUIPLUGIN_HPP
 #define GLFWM_DEARIMGUIPLUGIN_HPP
 
+#include "glfwm/Config.hpp"
 #include "glfwm/WindowPlugin.hpp"
+#include "glfwm/KeyCallback.hpp"
+#include "glfwm/MouseCallback.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"

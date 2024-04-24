@@ -15,7 +15,9 @@ namespace nyx {
 
     void GLFWM::init() {
         if (nyx::GLFWM::initialized) throw std::runtime_error("GLFWM::init: GLFWM already initialized.");
+#ifdef __unix__
         glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11); // TODO: remove once wayland works reliably
+#endif
         if (!glfwInit()) {
             const char *error;
             glfwGetError(&error);
