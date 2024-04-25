@@ -18,8 +18,10 @@ namespace nyx {
 
     struct CreateWindowEvent : public WindowEvent {
         // don't use unique_ptr, else reference returned in GLFWM would be invalidated on std::move
+        WindowHandle *windowHandle; // overshadow parent windowHandle
         Application *application;
-        CreateWindowEvent(WindowHandle &handle, Application *app) : WindowEvent(handle), application(app) {}
+        CreateWindowEvent(WindowHandle *handle, Application *app)
+                : WindowEvent(*handle), windowHandle(handle), application(app) {}
         void handle(WindowManager &manager) override;
     };
 
@@ -109,7 +111,7 @@ namespace nyx {
        -> GLFW_MOUSE_PASSTHROUGH (glfw 3.4)
        */
 
-    // TODO: maybe store in window class to fetch later ?
+    // TODO: maybe store in window class to fetch later ? maybe even inside WindowHandle ?
     /*Window property get functions:
     - glfwGetWindowPos
     - glfwGetWindowSize

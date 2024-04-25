@@ -84,7 +84,7 @@ namespace nyx {
 
         // push destroy event for every window
         for (auto &window: windows)
-            nyx::GLFWM::pushWindowEvent<DestroyWindow>(*window->getApplication().windowHandle);
+            nyx::GLFWM::pushWindowEvent<DestroyWindow>(window->getWindowHandle());
     }
 
     WindowGroup::~WindowGroup() {
@@ -98,7 +98,7 @@ namespace nyx {
 
     Window *WindowGroup::getWindow(WindowHandle &handle) {
         for (auto window: windows)
-            if (window->getApplication().windowHandle->windowId == handle.windowId)
+            if (window->getWindowHandle().windowId == handle.windowId)
                 return window;
         return nullptr;
     }

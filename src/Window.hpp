@@ -18,13 +18,14 @@ namespace nyx {
 
     class Window {
     public:
-        Window(Application *app, WindowGroup &g);
+        Window(Application *app, WindowHandle *handle, WindowGroup &g);
         void init();
         void render();
         void scheduleTermination();
         bool isTerminated() const;
         ~Window();
         Application &getApplication();
+        WindowHandle &getWindowHandle();
         GLFWwindow *getGlfwWindow();
         KeyCallback *getKeyCallback();
         MouseCallback *getMouseCallback();
@@ -36,6 +37,7 @@ namespace nyx {
 
     private:
         const std::unique_ptr<Application> application; // if moved reference returned by GLFWM would be invalidated
+        const std::unique_ptr<WindowHandle> windowHandle; // if moved reference stored by application is invalidated
         WindowGroup &group;
 
         // if application implements a listener, we would double delete it once as Application once as ...Callback

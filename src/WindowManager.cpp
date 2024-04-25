@@ -3,7 +3,9 @@
 #include <mutex>
 #include "glfwm/WindowEvents.hpp"
 #include "WindowManager.hpp"
+
 #define GLFW_INCLUDE_NONE
+
 #include "GLFW/glfw3.h"
 #include "Window.hpp"
 
@@ -11,26 +13,24 @@ namespace nyx {
 
     void WindowManager::pushWindowEvent(std::unique_ptr<WindowEvent> event) {
         // only accept events while not stopping or to destroy windows when stopping
-        if (!stopping.load() || dynamic_cast<DestroyWindow*>(event.get()))
+        if (!stopping.load() || dynamic_cast<DestroyWindow *>(event.get()))
             this->windowEventQueue.enqueue(std::move(event));
         //glfwPostEmptyEvent();
     }
 
-    void WindowManager::createNewWindow(Application *app) {
+    void WindowManager::createNewWindow(WindowHandle *handle, Application *app) {
         // catch CreateWindowEvents that were submitted after TerminateEvent but before queue closed
-        if(this->stopping.load()) return;
-
-        auto &handle = app->windowHandle;
+        if (this->stopping.load()) return;
 
         // create & start group if not found
-        if (this->windowGroups.find(handle->groupId) == this->windowGroups.end()) {
-            this->windowGroups.insert({handle->groupId, std::unique_ptr<WindowGroup>(new WindowGroup(handle->groupId))});
-            //this->windowGroups.at(handle->groupId)->startThread();
-        }
+        if (this->windowGroups.find(handle->groupId) == this->windowGroups.end())
+            this->windowGroups.insert(
+                    {handle->groupId, std::unique_ptr<WindowGroup>(new WindowGroup(handle->groupId))}
+            );
         auto &group = this->windowGroups.at(handle->groupId);
 
         // create the window & push to wind group
-        auto *window = new Window(app, *group);
+        auto *window = new Window(app, handle, *group);
         group->pushInternalWindowEvent(new InternalCreateWindowEvent(*handle, window));
     }
 
@@ -58,7 +58,7 @@ namespace nyx {
         // destroy group if empty
         if (this->windowGroups.at(groupId)->isEmpty()) {
             this->windowGroups.erase(groupId);
-            if(this->windowGroups.empty()) this->stopping.store(true);
+            if (this->windowGroups.empty()) this->stopping.store(true);
         }
     }
 
@@ -84,7 +84,7 @@ namespace nyx {
         this->stopping.store(true);
 
         // push events to all window groups to terminate
-        for(auto &groupItr : this->windowGroups)
+        for (auto &groupItr: this->windowGroups)
             groupItr.second->pushInternalWindowEvent(new InternalTerminateEvent());
     }
 

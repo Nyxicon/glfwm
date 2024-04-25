@@ -8,8 +8,8 @@
 
 class Game : public nyx::Application, nyx::KeyCallback {
 public:
-    explicit Game(std::unique_ptr<nyx::WindowHandle> handle, float r, float g, float b)
-            : Application(std::move(handle)), shouldRender(true), red(r), green(g), blue(b) {
+    explicit Game(nyx::WindowHandle &handle, float r, float g, float b)
+            : Application(handle), shouldRender(true), red(r), green(g), blue(b) {
         // constructor does not have active context
     }
 
@@ -45,8 +45,8 @@ private:
         if (action == GLFW_PRESS) shouldRender = false;
         if (action == GLFW_RELEASE) {
             shouldRender = true;
-            if (key == GLFW_KEY_O) nyx::GLFWM::pushWindowEvent<nyx::DestroyWindow>(*this->windowHandle);
-            if (key == GLFW_KEY_T) nyx::GLFWM::pushWindowEvent<nyx::WindowTitle>(*this->windowHandle, "Test");
+            if (key == GLFW_KEY_O) nyx::GLFWM::pushWindowEvent<nyx::DestroyWindow>(this->windowHandle);
+            if (key == GLFW_KEY_T) nyx::GLFWM::pushWindowEvent<nyx::WindowTitle>(this->windowHandle, "Test");
             if (key == GLFW_KEY_ESCAPE) nyx::GLFWM::terminate();
         }
     }

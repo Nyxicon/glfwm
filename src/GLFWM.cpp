@@ -47,7 +47,7 @@ namespace nyx {
         );
     }
 
-    void GLFWM::pushWindowEvent2(std::unique_ptr<WindowEvent> event) {
+    void GLFWM::pushWindowEventImpl(std::unique_ptr<WindowEvent> event) {
         GLFWM::instance().windowManager->pushWindowEvent(std::move(event));
     }
 

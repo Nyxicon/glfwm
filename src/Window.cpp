@@ -6,10 +6,8 @@
 
 namespace nyx {
 
-    Window::Window(Application *app, WindowGroup &g)
-            : application(app), group(g) {
-        this->glfwWindow = nullptr;
-
+    Window::Window(Application *app, WindowHandle *handle, WindowGroup &g)
+            : application(app), windowHandle(handle), group(g), glfwWindow(nullptr) {
         Config config;
         this->application->configure(config);
         this->windowWidth = config.width;
@@ -17,8 +15,8 @@ namespace nyx {
 
         // set default debug title
         if (config.title.empty())
-            config.title = "Window [" + std::to_string(application->windowHandle->windowId) + "|" +
-                           std::to_string(application->windowHandle->groupId) + "]";
+            config.title = "Window [" + std::to_string(this->windowHandle->windowId) + "|" +
+                           std::to_string(this->windowHandle->groupId) + "]";
 
         // let plugins alter the config if needed
         this->plugins = std::move(config.plugins);
@@ -172,9 +170,9 @@ namespace nyx {
             // close if window-callback returns true or doesn't exist
             if(thisWindow->windowCallback != nullptr) {
                 if(thisWindow->windowCallback->close()) {
-                    GLFWM::pushWindowEvent<DestroyWindow>(*thisWindow->getApplication().windowHandle);
+                    GLFWM::pushWindowEvent<DestroyWindow>(*thisWindow->windowHandle);
                 }
-            } else GLFWM::pushWindowEvent<DestroyWindow>(*thisWindow->getApplication().windowHandle);
+            } else GLFWM::pushWindowEvent<DestroyWindow>(*thisWindow->windowHandle);
         });
 
         glfwSetFramebufferSizeCallback(glfwWindow, [](GLFWwindow *window, int width, int height) {
@@ -222,20 +220,20 @@ namespace nyx {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
                 thisWindow->group.pushInternalWindowEvent(
                         new InternalKeyEvent(
-                                *thisWindow->application->windowHandle,
+                                *thisWindow->windowHandle,
                                 key, scancode, action, mode)
                 );
             });
             glfwSetCharCallback(glfwWindow, [](GLFWwindow *window, unsigned int codepoint) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
                 thisWindow->group.pushInternalWindowEvent(
-                        new InternalCharEvent(*thisWindow->application->windowHandle, codepoint)
+                        new InternalCharEvent(*thisWindow->windowHandle, codepoint)
                 );
             });
             glfwSetCharModsCallback(glfwWindow, [](GLFWwindow *window, unsigned int codepoint, int mods) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
                 thisWindow->group.pushInternalWindowEvent(
-                        new InternalCharModsEvent(*thisWindow->application->windowHandle, codepoint, mods)
+                        new InternalCharModsEvent(*thisWindow->windowHandle, codepoint, mods)
                 );
             });
         }
@@ -244,25 +242,25 @@ namespace nyx {
             glfwSetMouseButtonCallback(glfwWindow, [](GLFWwindow *window, int button, int action, int mods) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
                 thisWindow->group.pushInternalWindowEvent(
-                        new InternalMouseButtonEvent(*thisWindow->application->windowHandle, button, action, mods)
+                        new InternalMouseButtonEvent(*thisWindow->windowHandle, button, action, mods)
                 );
             });
             glfwSetCursorPosCallback(glfwWindow, [](GLFWwindow *window, double xpos, double ypos) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
                 thisWindow->group.pushInternalWindowEvent(
-                        new InternalMousePosEvent(*thisWindow->application->windowHandle, xpos, ypos)
+                        new InternalMousePosEvent(*thisWindow->windowHandle, xpos, ypos)
                 );
             });
             glfwSetScrollCallback(glfwWindow, [](GLFWwindow *window, double xoffset, double yoffset) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
                 thisWindow->group.pushInternalWindowEvent(
-                        new InternalMouseScrollEvent(*thisWindow->application->windowHandle, xoffset, yoffset)
+                        new InternalMouseScrollEvent(*thisWindow->windowHandle, xoffset, yoffset)
                 );
             });
             glfwSetCursorEnterCallback(glfwWindow, [](GLFWwindow *window, int entered) {
                 auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
                 thisWindow->group.pushInternalWindowEvent(
-                        new InternalMouseEnterEvent(*thisWindow->application->windowHandle, entered)
+                        new InternalMouseEnterEvent(*thisWindow->windowHandle, entered)
                 );
             });
         }
@@ -272,20 +270,20 @@ namespace nyx {
     }
 
     void Window::render() {
-        for (auto &p: plugins) p->preRenderWindow();
+        for (auto &p: this->plugins) p->preRenderWindow();
 
         // Measure speed
         double currentTime = glfwGetTime();
-        frameCount++;
+        this->frameCount++;
         if (currentTime - previousTime >= 1.0) {
             //std::cout << frameCount << std::endl; // Display the frame count here any way you want.
-            frameCount = 0;
-            previousTime = currentTime;
+            this->frameCount = 0;
+            this->previousTime = currentTime;
         }
 
-        application->render(1.0f, lastFrameTime); // TODO: properly calc dt
+        this->application->render(1.0f, this->lastFrameTime); // TODO: properly calc dt
 
-        for (auto &p: plugins) p->postRenderWindow();
+        for (auto &p: this->plugins) p->postRenderWindow();
     }
 
     void Window::scheduleTermination() {
@@ -296,23 +294,27 @@ namespace nyx {
         std::unique_lock<std::mutex> lk(mutex);
         this->terminated = true;
         lk.unlock();
-        cv.notify_one();
+        this->cv.notify_one();
     }
 
     bool Window::isTerminated() const {
-        return terminated;
+        return this->terminated;
     }
 
     Window::~Window() {
-        for (auto p: plugins) delete p; // TODO: can be removed when using unique_ptr's
+        for (auto p: this->plugins) delete p; // TODO: can be removed when using unique_ptr's
     }
 
     Application &Window::getApplication() {
-        return *application;
+        return *this->application;
+    }
+
+    WindowHandle &Window::getWindowHandle() {
+        return *this->windowHandle;
     }
 
     GLFWwindow *Window::getGlfwWindow() {
-        return glfwWindow;
+        return this->glfwWindow;
     }
 
     KeyCallback *Window::getKeyCallback() {

@@ -4,7 +4,7 @@
 namespace nyx {
 
     void CreateWindowEvent::handle(WindowManager &manager) {
-        manager.createNewWindow(this->application);
+        manager.createNewWindow(this->windowHandle, this->application);
     }
 
     void DestroyWindow::handle(WindowManager &manager) {

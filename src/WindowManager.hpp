@@ -14,7 +14,7 @@ namespace nyx {
     public:
         WindowManager() : stopping(false) {}
         void pushWindowEvent(std::unique_ptr<WindowEvent> event);
-        void createNewWindow(Application *app);
+        void createNewWindow(WindowHandle *handle, Application *app);
         void destroyWindow(WindowHandle &handle);
         void pollEventsBlocking();
         void terminate();

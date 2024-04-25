@@ -56,4 +56,4 @@ target_link_libraries(glfwm PRIVATE concurrentqueue)
 target_link_libraries(glfwm PRIVATE readerwriterqueue)
 
 # example
-#add_subdirectory(examples)
+add_subdirectory(examples)
