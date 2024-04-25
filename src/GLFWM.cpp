@@ -15,6 +15,7 @@ namespace nyx {
 
     void GLFWM::init() {
         if (nyx::GLFWM::initialized) throw std::runtime_error("GLFWM::init: GLFWM already initialized.");
+        // TODO: move into config
 #ifdef __unix__
         glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11); // TODO: remove once wayland works reliably
 #endif
@@ -29,11 +30,6 @@ namespace nyx {
         nyx::GLFWM::instance().windowManager = std::unique_ptr<WindowManager>(new WindowManager());
     }
 
-    void GLFWM::recreateWindow(WindowHandle &handle) {
-        if (!nyx::GLFWM::initialized) throw std::runtime_error("GLFWM::recreateWindow: GLFWM not initialized.");
-        throw std::runtime_error("GLFWM::recreateWindow: Function not yet implemented !");
-    }
-
     void GLFWM::destroyWindow(WindowHandle &handle) {
         if (!nyx::GLFWM::initialized) throw std::runtime_error("GLFWM::destroyWindow: GLFWM not initialized.");
         GLFWM::instance().windowManager->pushWindowEvent(std::unique_ptr<DestroyWindow>(new DestroyWindow(handle)));
@@ -46,7 +42,9 @@ namespace nyx {
 
     void GLFWM::terminate() {
         if (!nyx::GLFWM::initialized) throw std::runtime_error("Engine::terminate: GLFWM not initialized.");
-        GLFWM::instance().windowManager->terminate();
+        GLFWM::instance().windowManager->pushWindowEvent(
+                std::unique_ptr<TerminateEvent>(new TerminateEvent())
+        );
     }
 
     void GLFWM::pushWindowEvent2(std::unique_ptr<WindowEvent> event) {

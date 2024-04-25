@@ -4,6 +4,10 @@
 
 namespace nyx {
 
+    void InternalTerminateEvent::handle(WindowGroup &group) {
+        group.terminate();
+    }
+
     void InternalCreateWindowEvent::handle(nyx::WindowGroup &group) {
         group.addWindow(this->window);
     }

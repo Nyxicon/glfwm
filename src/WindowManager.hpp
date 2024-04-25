@@ -4,20 +4,18 @@
 #include <vector>
 #include <map>
 #include "glfwm/WindowHandle.hpp"
+#include "glfwm/WindowEvents.hpp"
 #include "WindowGroup.hpp"
 #include "concurrentqueue.h"
-
-namespace nyx { class WindowEvent; }
 
 namespace nyx {
 
     class WindowManager {
     public:
-        WindowManager() = default;
-        void createNewWindow(Application *app);
-        void recreateWindow(WindowHandle &handle);
-        void destroyWindow(WindowHandle &handle);
+        WindowManager() : stopping(false) {}
         void pushWindowEvent(std::unique_ptr<WindowEvent> event);
+        void createNewWindow(Application *app);
+        void destroyWindow(WindowHandle &handle);
         void pollEventsBlocking();
         void terminate();
         ~WindowManager() = default;
@@ -26,7 +24,12 @@ namespace nyx {
     private:
         moodycamel::ConcurrentQueue<std::unique_ptr<WindowEvent>> windowEventQueue;
         std::map<int, std::unique_ptr<WindowGroup>> windowGroups;
-        // TODO: add running var
+        std::atomic<bool> stopping;
+    };
+
+    struct TerminateEvent : public WindowEvent {
+        explicit TerminateEvent() : WindowEvent(WindowHandle::getNullWindowHandle()) {}
+        void handle(WindowManager &manager) override { manager.terminate(); }
     };
 
 } // namespace

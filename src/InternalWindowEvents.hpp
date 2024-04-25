@@ -2,6 +2,7 @@
 #define GLFWM_WINDOWCALLBACKEVENTS_HPP
 
 #include "Window.hpp"
+
 namespace nyx { class WindowGroup; }
 
 namespace nyx {
@@ -11,6 +12,11 @@ namespace nyx {
         explicit InternalWindowEvent(WindowHandle &handle) : windowHandle(handle) {}
         virtual void handle(WindowGroup &group) = 0;
         virtual ~InternalWindowEvent() = default;
+    };
+
+    struct InternalTerminateEvent : public InternalWindowEvent {
+        explicit InternalTerminateEvent() : InternalWindowEvent(WindowHandle::getNullWindowHandle()) {}
+        void handle(WindowGroup &group) override;
     };
 
     struct InternalCreateWindowEvent : public InternalWindowEvent {

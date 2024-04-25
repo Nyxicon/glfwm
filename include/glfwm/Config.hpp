@@ -24,6 +24,7 @@ namespace nyx {
         KeyCallback *keyCallback = nullptr;
         MouseCallback *mouseCallback = nullptr;
         JoystickCallback *joystickCallback = nullptr;
+        // TODO: maybe add bitset to disable specific callbacks for each handler ?
 
         // window
         bool resizeable = true;

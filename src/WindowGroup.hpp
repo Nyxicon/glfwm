@@ -15,20 +15,22 @@ namespace nyx {
     class WindowGroup {
     public:
         const int id;
-        explicit WindowGroup(int i) : id(i) {}
+        explicit WindowGroup(int i);
         void pushInternalWindowEvent(InternalWindowEvent *event);
-        void startThread(); // TODO: maybe rename !?
         void addWindow(Window *window);
-        void joinThread(); // TODO: rename to something like terminate !?
-        bool empty();
+        void terminate();
+        ~WindowGroup();
+        bool isEmpty();
         Window *getWindow(WindowHandle &handle);
 
     private:
-        // TODO: refactor to use std::unique_ptr<InternalWindowEvent>
-        moodycamel::ReaderWriterQueue<InternalWindowEvent *> internalWindowEventQueue;
-        std::vector<Window *> windows;
-        //std::vector<std::unique_ptr<Window>> windows;
+        moodycamel::ReaderWriterQueue<InternalWindowEvent *> internalWindowEventQueue; // TODO: use unique_ptr
+        std::vector<Window *> windows; // TODO: use unique_ptr
         std::thread thread;
+        std::atomic<bool> stopping;
+
+        std::atomic<bool> empty; // used by WindowManager to check if group should be removed
+
         static void loop(WindowGroup &group);
     };
 

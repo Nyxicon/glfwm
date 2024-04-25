@@ -4,9 +4,13 @@
 #include <string>
 #include <mutex>
 #include <condition_variable>
+#include "glfwm/Application.hpp"
+#include "glfwm/KeyCallback.hpp"
+#include "glfwm/MouseCallback.hpp"
+#include "glfwm/JoystickCallback.hpp"
+#include "glfwm/WindowCallback.hpp"
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
-#include "glfwm/Application.hpp"
 
 namespace nyx { class WindowGroup; }
 
@@ -14,16 +18,16 @@ namespace nyx {
 
     class Window {
     public:
-        Window(std::unique_ptr<Application> app, WindowGroup &g);
+        Window(Application *app, WindowGroup &g);
         void init();
         void render();
         void scheduleTermination();
+        bool isTerminated() const;
         ~Window();
         Application &getApplication();
         GLFWwindow *getGlfwWindow();
         KeyCallback *getKeyCallback();
         MouseCallback *getMouseCallback();
-        bool isTerminated() const;
 
         // move into get methods
         std::condition_variable cv;
@@ -31,17 +35,16 @@ namespace nyx {
         long lastFrameTime = 0;
 
     private:
-        const std::unique_ptr<Application> application;
+        const std::unique_ptr<Application> application; // if moved reference returned by GLFWM would be invalidated
         WindowGroup &group;
 
-        // TODO: change to reference
         // if application implements a listener, we would double delete it once as Application once as ...Callback
         WindowCallback *windowCallback;
         KeyCallback *keyCallback;
         MouseCallback * mouseCallback;
         JoystickCallback *joystickCallback;
-
         std::vector<WindowPlugin*> plugins; // TODO: make unique_ptr
+
         GLFWwindow *glfwWindow;
         bool terminated = false;
         double previousTime = glfwGetTime();

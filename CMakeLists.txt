@@ -50,7 +50,7 @@ target_include_directories(glfwm
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/include>
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(glfwm PUBLIC glfw)
 target_link_libraries(glfwm PRIVATE concurrentqueue)
 target_link_libraries(glfwm PRIVATE readerwriterqueue)

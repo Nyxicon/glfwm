@@ -8,7 +8,7 @@
 #include "Application.hpp"
 #include "WindowEvents.hpp"
 
-namespace nyx { class WindowManager; } // break GLFWM - WindowManager dependecy
+namespace nyx { class WindowManager; } // hide engine implementation
 
 namespace nyx {
 
@@ -21,7 +21,6 @@ namespace nyx {
         template<class T, typename... Args>
         static T &createWindow(Args &&...args) {
             if (!nyx::GLFWM::initialized) throw std::runtime_error("GLFWM::createWindow: GLFWM not initialized.");
-            // WindowManager moves ownership to unique_ptr in window class
             T *app = new T(WindowHandle::createNewWindowHandle(), args...);
             GLFWM::pushWindowEvent<CreateWindowEvent>(*app->windowHandle, app);
             return *app;
@@ -37,12 +36,11 @@ namespace nyx {
         }
 
         template<class T, typename... Args>
-        static void pushWindowEvent(Args &&...args) {
+        static void pushWindowEvent(Args &&...args) { // TODO: rename
             if (!nyx::GLFWM::initialized) throw std::runtime_error("GLFWM::pushWindowEvent: GLFWM not initialized.");
             GLFWM::pushWindowEvent2(std::unique_ptr<T>(new T(args...)));
         }
         static void pushWindowEvent2(std::unique_ptr<WindowEvent> event);
-        static void recreateWindow(WindowHandle &handle);
         static void destroyWindow(WindowHandle &handle);
         static void pollEventsBlocking();
         static void terminate();

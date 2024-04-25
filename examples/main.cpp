@@ -14,7 +14,7 @@ public:
     }
 
     void configure(nyx::Config &config) override {
-        config.title = "Window";
+        //config.title = "Window";
         config.keyCallback = this;
         config.plugins.push_back(new GladPlugin());
         config.plugins.push_back(new DearImGuiPlugin());
@@ -24,8 +24,7 @@ public:
 
     void render(float dt, long frameTime) override {
         if (shouldRender) glClearColor(red, green, blue, 1.0f);
-        else
-            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        else glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui::ShowDemoWindow();
     }
@@ -35,6 +34,8 @@ public:
     void dispose() override {} // called before destructor with active context
 
     ~Game() override = default; // destructor does not have active context
+
+    int i = 213;
 
 private:
     bool shouldRender;

@@ -103,13 +103,14 @@ Sorted in order of descending importance
 - [X] Plugins (to add functionality to window(-groups) e.g. glad/glew & ImGui)
 - [ ] Window loop allowing to manually limit FPS
 - [ ] WindowGroup executed on main thread
+- [ ] Option to choose between glfwPollEvents() & glfwWaitEvents()
 - [ ] Doxygen comments
 - [ ] (Config-) Support for windows with vulkan context
 - [ ] Proper joystick/gamepad support
 - [ ] Multiple windows sharing one context
 - [ ] Allow overwriting window handlers
-- [ ] window-to-window user messages through WindowManager
-- [ ] Recreating windows
+- [ ] <strike>window-to-window user messages through WindowManager</strike>
+- [ ] <strike>Recreating windows</strike>
 - [ ] Window dependencies
 - [ ] Further testing on different platforms (especially Windows & macOS)
 - [ ] More/Better build systems

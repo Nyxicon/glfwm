@@ -1,16 +1,15 @@
 #include <stdexcept>
-
 #include "Window.hpp"
 #include "WindowGroup.hpp"
-
-//#include "glad/glad.h"
 #include "glfwm/WindowEvents.hpp"
 #include "glfwm/GLFWM.hpp"
 
 namespace nyx {
 
-    Window::Window(std::unique_ptr<Application> app, WindowGroup &g)
-            : application(std::move(app)), group(g), glfwWindow(nullptr) {
+    Window::Window(Application *app, WindowGroup &g)
+            : application(app), group(g) {
+        this->glfwWindow = nullptr;
+
         Config config;
         this->application->configure(config);
         this->windowWidth = config.width;
@@ -268,7 +267,8 @@ namespace nyx {
             });
         }
 
-        // TODO: if (this->joystickCallback != nullptr)
+        // TODO: Add joystick callbacks
+        // if (this->joystickCallback != nullptr)
     }
 
     void Window::render() {
@@ -289,8 +289,9 @@ namespace nyx {
     }
 
     void Window::scheduleTermination() {
+        glfwMakeContextCurrent(glfwWindow);
         this->application->dispose();
-        for (auto &p: this->plugins) p->dispose();
+        for (auto &p: this->plugins) p->dispose(); // TODO: plugins.clear() when changed to smart pointer
 
         std::unique_lock<std::mutex> lk(mutex);
         this->terminated = true;
@@ -298,8 +299,12 @@ namespace nyx {
         cv.notify_one();
     }
 
+    bool Window::isTerminated() const {
+        return terminated;
+    }
+
     Window::~Window() {
-        for (auto p: plugins) delete p;
+        for (auto p: plugins) delete p; // TODO: can be removed when using unique_ptr's
     }
 
     Application &Window::getApplication() {
@@ -316,10 +321,6 @@ namespace nyx {
 
     MouseCallback *Window::getMouseCallback() {
         return this->mouseCallback;
-    }
-
-    bool Window::isTerminated() const {
-        return terminated;
     }
 
 } // namespace

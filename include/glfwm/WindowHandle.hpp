@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <memory>
+#include <mutex>
 
 namespace nyx {
 
@@ -19,6 +20,15 @@ namespace nyx {
             return std::unique_ptr<WindowHandle>(
                     new WindowHandle(windowIdCounter++, (groupId != -1) ? groupId : windowGroupIdCounter++)
             );
+        }
+        // terminate events require null handle
+        friend class TerminateEvent;
+        friend class InternalTerminateEvent;
+        static WindowHandle &getNullWindowHandle() {
+            // From C++11 onwards static initialization is thread safe
+            // Access is thread safe since threads at most only read const values
+            static WindowHandle empty(-1, -1);
+            return empty;
         }
         explicit WindowHandle(int windowId, int groupId) : windowId(windowId), groupId(groupId) {}
     };

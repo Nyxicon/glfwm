@@ -17,6 +17,7 @@ namespace nyx {
     };
 
     struct CreateWindowEvent : public WindowEvent {
+        // don't use unique_ptr, else reference returned in GLFWM would be invalidated on std::move
         Application *application;
         CreateWindowEvent(WindowHandle &handle, Application *app) : WindowEvent(handle), application(app) {}
         void handle(WindowManager &manager) override;
