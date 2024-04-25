@@ -15,7 +15,7 @@ namespace nyx {
         explicit Application(WindowHandle &handle) : windowHandle(handle) {}
         virtual void configure(Config &config) = 0;
         virtual void create() = 0;
-        virtual void render(float dt, long frameTime) = 0;
+        virtual void render(double dt, long frameTime) = 0;
         virtual void resize(int width, int height) = 0;
         virtual void dispose() = 0;
         virtual ~Application() = default;

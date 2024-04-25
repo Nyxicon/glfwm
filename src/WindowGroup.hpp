@@ -16,7 +16,7 @@ namespace nyx {
     public:
         const int id;
         explicit WindowGroup(int i);
-        void pushInternalWindowEvent(InternalWindowEvent *event);
+        void pushInternalWindowEvent(InternalWindowEvent *event); // TODO: change to unique_ptr and move in impl
         void addWindow(Window *window);
         void terminate();
         ~WindowGroup();
@@ -24,8 +24,8 @@ namespace nyx {
         Window *getWindow(WindowHandle &handle);
 
     private:
-        moodycamel::ReaderWriterQueue<InternalWindowEvent *> internalWindowEventQueue; // TODO: use unique_ptr
-        std::vector<Window *> windows; // TODO: use unique_ptr
+        moodycamel::ReaderWriterQueue<std::unique_ptr<InternalWindowEvent>> internalWindowEventQueue; // TODO: use unique_ptr
+        std::vector<Window *> windows; // TODO: maybe use unique_ptr
         std::thread thread;
         std::atomic<bool> stopping;
 

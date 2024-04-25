@@ -12,48 +12,35 @@ namespace nyx {
 
     void WindowGroup::pushInternalWindowEvent(InternalWindowEvent *event) {
         if (!stopping.load())
-            this->internalWindowEventQueue.enqueue(event);
+            this->internalWindowEventQueue.enqueue(std::unique_ptr<InternalWindowEvent>(event));
     }
 
     void WindowGroup::addWindow(Window *window) {
-        // Called from InternalCreateWindowEvent -> thread safe
         if (!stopping.load()) {
             window->init();
             this->windows.push_back(window);
-        } else {
-            // TODO: window must be terminated
-            // by creating the window right here
-            // -> as benefit the application constructor can be thread safe with gl context
-        }
+        } else delete window; // group is already stopping -> just destroy window
     }
 
-    // TODO: rename render, create new loop method move while(true) to it
     void WindowGroup::loop(WindowGroup &group) {
         while (true) {
             // handle all queued internal window events
-            InternalWindowEvent *event = nullptr;
-            while (group.internalWindowEventQueue.try_dequeue(event)) {
-                event->handle(group);
-                delete event;
-                event = nullptr;
-            }
+            std::unique_ptr<InternalWindowEvent> event;
+            while (group.internalWindowEventQueue.try_dequeue(event)) event->handle(group);
 
             // update all windows
             for (int i = 0; i < group.windows.size(); i++) {
                 auto window = group.windows.at(i);
 
+                // check if window should close
                 if (glfwWindowShouldClose(window->getGlfwWindow())) {
                     group.windows.erase(group.windows.begin() + i);
                     i--;
-
-                    // TODO: maybe call something like destroy & flag ready to delete idk
-                    window->scheduleTermination();
-
+                    window->destroyAndFlagTerminated();
                     if (group.windows.empty()) {
                         group.stopping.store(true); // if last window was destroyed, terminate group
                         group.empty.store(true); // inform WindowManager that this was the last window -> destroy group
                     }
-
                     continue; // skip rendering for this window
                 }
 
@@ -70,12 +57,11 @@ namespace nyx {
             // if no windows remain -> terminate this thread
             if (group.windows.empty() && group.stopping.load()) break;
         }
-
-        // TODO: clear possible remaining events from queue
-        // disallow pushing new events once group is stopping
-        // maybe use atomic bool running after all ?
-
         glfwMakeContextCurrent(nullptr);
+
+        // clear possibly remaining events
+        std::unique_ptr<InternalWindowEvent> event;
+        while (group.internalWindowEventQueue.try_dequeue(event)) event->handle(group);
     }
 
     void WindowGroup::terminate() {

@@ -7,7 +7,7 @@
 namespace nyx {
 
     Window::Window(Application *app, WindowHandle *handle, WindowGroup &g)
-            : application(app), windowHandle(handle), group(g), glfwWindow(nullptr) {
+            : application(app), windowHandle(handle), group(g), glfwWindow(nullptr), lastTime(0), lastSecondTime(0) {
         Config config;
         this->application->configure(config);
         this->windowWidth = config.width;
@@ -26,7 +26,9 @@ namespace nyx {
         this->setWindowHints(config);
         this->createWindow(config);
         glfwSetWindowUserPointer(glfwWindow, this);
-
+        glfwMakeContextCurrent(this->glfwWindow);
+        if(config.vsync) glfwSwapInterval(1);
+        glfwMakeContextCurrent(nullptr);
         for (auto &p: this->plugins) p->onWindowCreated(config, this->glfwWindow);
 
         // register all key, mouse and window callbacks
@@ -39,24 +41,16 @@ namespace nyx {
 
     void Window::init() {
         glfwMakeContextCurrent(glfwWindow);
-        glfwSwapInterval(1); // TODO: get vsync from config
-        // TODO: remove glad -> inject custom loader glad/glew through plugin
-        //gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
-
         for (auto &p: this->plugins) p->onWindowInit(this->glfwWindow);
-
-        application->create();
-        application->resize(windowWidth, windowHeight);
+        this->application->create();
+        this->application->resize(this->windowWidth, this->windowHeight);
         glfwMakeContextCurrent(nullptr);
-        // TODO: push a "show window event" (see Window::setWindowHints)
-        // only show window once its done
+        this->lastTime = glfwGetTime();
+        this->lastSecondTime = glfwGetTime();
     }
 
     void Window::setWindowHints(Config &config) {
         glfwDefaultWindowHints();
-
-        // TODO: if window is windowed -> make invisible and make visible later
-        //       else if fullscreen -> ignore and set normally
 
         //struct _GLFWwndconfig
         //{
@@ -270,26 +264,28 @@ namespace nyx {
     }
 
     void Window::render() {
+        // calc delta time
+        double now = glfwGetTime();
+        double delta = now - this->lastTime;
+        this->lastTime = now;
+
+        // render window & plugins
         for (auto &p: this->plugins) p->preRenderWindow();
-
-        // Measure speed
-        double currentTime = glfwGetTime();
-        this->frameCount++;
-        if (currentTime - previousTime >= 1.0) {
-            //std::cout << frameCount << std::endl; // Display the frame count here any way you want.
-            this->frameCount = 0;
-            this->previousTime = currentTime;
-        }
-
-        this->application->render(1.0f, this->lastFrameTime); // TODO: properly calc dt
-
+        this->application->render(delta, this->lastFrameTime);
         for (auto &p: this->plugins) p->postRenderWindow();
+
+        // calc fps
+        this->frameCount++;
+        if (now - lastSecondTime >= 1.0) {
+            this->lastSecondTime = now;
+            this->frameCount = 0;
+        }
     }
 
-    void Window::scheduleTermination() {
+    void Window::destroyAndFlagTerminated() {
         glfwMakeContextCurrent(glfwWindow);
         this->application->dispose();
-        for (auto &p: this->plugins) p->dispose(); // TODO: plugins.clear() when changed to smart pointer
+        for (auto &p: this->plugins) p->dispose();
 
         std::unique_lock<std::mutex> lk(mutex);
         this->terminated = true;
@@ -301,9 +297,7 @@ namespace nyx {
         return this->terminated;
     }
 
-    Window::~Window() {
-        for (auto p: this->plugins) delete p; // TODO: can be removed when using unique_ptr's
-    }
+    Window::~Window() = default;
 
     Application &Window::getApplication() {
         return *this->application;

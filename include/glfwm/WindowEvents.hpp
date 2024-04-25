@@ -98,6 +98,7 @@ namespace nyx {
         void handle(WindowManager &manager) override;
     };
 
+    // TODO: add missing glfw functions
     /* Exposed functions through Window class: (main thread only)
      - glfwFocusWindow (-)
      - glfwRequestWindowAttention (-)
@@ -112,6 +113,9 @@ namespace nyx {
        */
 
     // TODO: maybe store in window class to fetch later ? maybe even inside WindowHandle ?
+    /*They are a bit more complicated to implement: Push request object to main thread, call the glfw function and push
+    the rec data back to the specific app into a callback queue. Then on the thread of the app poll the queue and execute
+    the callback if it is not empty.*/
     /*Window property get functions:
     - glfwGetWindowPos
     - glfwGetWindowSize
@@ -121,10 +125,30 @@ namespace nyx {
     - glfwGetWindowOpacity
     - glfwGetWindowMonitor
     - glfwGetWindowAttrib
-    They are a bit more complicated to implement: Push request object to main thread, call the glfw function and push
-    the rec data back to the specific app into a callback queue. Then on the thread of the app poll the queue and execute
-    the callback if it is not empty.*/
-
+        GLFW_FOCUSED
+        GLFW_ICONIFIED
+        GLFW_VISIBLE
+        GLFW_MAXIMIZED
+        GLFW_HOVERED
+        GLFW_FOCUS_ON_SHOW
+        GLFW_MOUSE_PASSTHROUGH
+        GLFW_TRANSPARENT_FRAMEBUFFER
+        GLFW_RESIZABLE
+        GLFW_DECORATED
+        GLFW_FLOATING
+        GLFW_AUTO_ICONIFY
+        GLFW_DOUBLEBUFFER
+        GLFW_CLIENT_API
+        GLFW_CONTEXT_CREATION_API
+        GLFW_CONTEXT_VERSION_MAJOR
+        GLFW_CONTEXT_VERSION_MINOR
+        GLFW_CONTEXT_REVISION
+        GLFW_CONTEXT_ROBUSTNESS
+        GLFW_OPENGL_FORWARD_COMPAT
+        GLFW_CONTEXT_DEBUG
+        GLFW_OPENGL_PROFILE
+        GLFW_CONTEXT_RELEASE_BEHAVIOR
+        GLFW_CONTEXT_NO_ERROR*/
 } // namespace
 
 #endif //GLFWM_WINDOWEVENTS_HPP

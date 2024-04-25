@@ -16,13 +16,13 @@ public:
     void configure(nyx::Config &config) override {
         //config.title = "Window";
         config.keyCallback = this;
-        config.plugins.push_back(new GladPlugin());
-        config.plugins.push_back(new DearImGuiPlugin());
+        config.addPlugin<GladPlugin>();
+        config.addPlugin<DearImGuiPlugin>();
     }
 
     void create() override {} // called after constructor with active context
 
-    void render(float dt, long frameTime) override {
+    void render(double dt, long frameTime) override {
         if (shouldRender) glClearColor(red, green, blue, 1.0f);
         else glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -61,6 +61,9 @@ private:
 };
 
 int main() {
+#ifdef __unix__
+    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+#endif
     nyx::GLFWM::init();
     Game &g = nyx::GLFWM::createWindow<Game>(1.0f, 0.3f, 0.3f);
     nyx::GLFWM::createSharedWindow<Game>(&g, 0.3f, 1.0f, 0.3f);

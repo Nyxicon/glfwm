@@ -57,10 +57,14 @@ namespace nyx {
 
         int samples = 2;
 
-        std::vector<WindowPlugin*> plugins;
+        template<class T>
+        void addPlugin() {
+            plugins.push_back(std::unique_ptr<T>(new T()));
+        }
 
     private:
         friend class Window;
+        std::vector<std::unique_ptr<WindowPlugin>> plugins;
         Config() = default;
     };
 

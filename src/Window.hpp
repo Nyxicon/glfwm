@@ -21,7 +21,7 @@ namespace nyx {
         Window(Application *app, WindowHandle *handle, WindowGroup &g);
         void init();
         void render();
-        void scheduleTermination();
+        void destroyAndFlagTerminated();
         bool isTerminated() const;
         ~Window();
         Application &getApplication();
@@ -45,11 +45,12 @@ namespace nyx {
         KeyCallback *keyCallback;
         MouseCallback * mouseCallback;
         JoystickCallback *joystickCallback;
-        std::vector<WindowPlugin*> plugins; // TODO: make unique_ptr
+        std::vector<std::unique_ptr<WindowPlugin>> plugins;
 
         GLFWwindow *glfwWindow;
         bool terminated = false;
-        double previousTime = glfwGetTime();
+        double lastTime;
+        double lastSecondTime;
         int frameCount = 0;
 
         int windowWidth, windowHeight;

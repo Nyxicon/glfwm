@@ -53,7 +53,7 @@ namespace nyx {
 
         glfwDestroyWindow(window->getGlfwWindow()); // must be called from the main thread
 
-        delete window; // TODO: could probably be replaced with a unique_ptr ?
+        delete window;
 
         // destroy group if empty
         if (this->windowGroups.at(groupId)->isEmpty()) {
@@ -67,14 +67,14 @@ namespace nyx {
             glfwPollEvents(); //glfwWaitEvents(); waiting can possibly be more resource saving
 
             // handle all queued window events
-            std::unique_ptr<WindowEvent> p;
-            while (windowEventQueue.try_dequeue(p)) p->handle(*this);
+            std::unique_ptr<WindowEvent> event;
+            while (windowEventQueue.try_dequeue(event)) event->handle(*this);
 
             // check if glfwm should terminate
             if (this->windowGroups.empty() && this->stopping.load()) break;
         }
 
-        // clear out possibly remaining events
+        // clear possibly remaining events
         std::unique_ptr<WindowEvent> p;
         while (windowEventQueue.try_dequeue(p));
     }

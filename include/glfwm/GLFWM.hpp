@@ -12,6 +12,16 @@ namespace nyx { class WindowManager; } // hide engine implementation
 
 namespace nyx {
 
+    /*struct InitHints {
+        bool useJoystickHatButtons = true;
+        int anglePlatformType = GLFW_ANGLE_PLATFORM_TYPE_NONE;
+        int platform = GLFW_ANY_PLATFORM;
+        bool useCocoaChDirResources = true;
+        bool useCocoaMenubar = true;
+        bool useX11XcbVulkanSurface = true;
+        bool disableWaylandLibdecor = false;
+    };*/
+
     class GLFWM {
     public:
         GLFWM(GLFWM const &) = delete;
