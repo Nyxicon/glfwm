@@ -33,7 +33,7 @@ namespace nyx {
             if (!nyx::GLFWM::initialized) throw std::runtime_error("GLFWM::createWindow: GLFWM not initialized.");
             // Window class takes ownership of WindowHandle & Application pointer, moving would invalidate references
             WindowHandle *handle = WindowHandle::createNewWindowHandle();
-            T *app = new T(*handle, args...);
+            T *app = new T(handle, args...);
             GLFWM::pushWindowEvent<CreateWindowEvent>(handle, app);
             return *app;
         }
@@ -43,7 +43,7 @@ namespace nyx {
             if (!nyx::GLFWM::initialized) throw std::runtime_error("GLFWM::createSharedWindow: GLFWM not initialized.");
             // Window class takes ownership of WindowHandle & Application pointer, moving would invalidate references
             WindowHandle *handle = WindowHandle::createNewWindowHandle(sharedApp->windowHandle.groupId);
-            T *app = new T(*handle, args...);
+            T *app = new T(handle, args...);
             GLFWM::pushWindowEvent<CreateWindowEvent>(handle, app);
             return *app;
         }
