@@ -47,6 +47,4 @@ namespace nyx {
         GLFWM::instance().windowManager->pushWindowEvent(std::move(event));
     }
 
-    GLFWM::~GLFWM() = default;
-
 } // namespace

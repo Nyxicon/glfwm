@@ -173,7 +173,9 @@ namespace nyx {
             auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
             thisWindow->windowWidth = width;
             thisWindow->windowHeight = height;
+            glfwMakeContextCurrent(thisWindow->glfwWindow);
             thisWindow->application->resize(width, height);
+            glfwMakeContextCurrent(nullptr);
         });
 
         if (this->windowCallback != nullptr) { // TODO: change to use InternalEvents

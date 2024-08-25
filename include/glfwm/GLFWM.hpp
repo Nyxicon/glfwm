@@ -61,7 +61,7 @@ namespace nyx {
         static bool initialized;
         std::unique_ptr<WindowManager> windowManager;
         GLFWM() = default;
-        ~GLFWM();
+        ~GLFWM() = default;
         static GLFWM &instance();
         static void pushWindowEventImpl(std::unique_ptr<WindowEvent> event);
     };
