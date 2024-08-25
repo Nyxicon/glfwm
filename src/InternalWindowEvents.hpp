@@ -75,6 +75,13 @@ namespace nyx {
         void handle(WindowGroup &group) override;
     };
 
+    struct InternalFramebufferSizeEvent : public InternalWindowEvent {
+        int width, height;
+        explicit InternalFramebufferSizeEvent(WindowHandle &handle, int w, int h)
+                : InternalWindowEvent(handle), width(w), height(h) {}
+        void handle(WindowGroup &group) override;
+    };
+
 } // namespace
 
 #endif //GLFWM_WINDOWCALLBACKEVENTS_HPP

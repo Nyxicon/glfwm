@@ -47,4 +47,10 @@ namespace nyx {
         if(mouseCallback != nullptr) mouseCallback->cursorEnterCallback(entered);
     }
 
+    void InternalFramebufferSizeEvent::handle(WindowGroup &group) {
+        glfwMakeContextCurrent(group.getWindow(windowHandle)->getGlfwWindow());
+        group.getWindow(windowHandle)->getApplication().resize(width, height);
+        glfwMakeContextCurrent(nullptr);
+    }
+
 } // namespace

@@ -156,6 +156,9 @@ namespace nyx {
     }
 
     void Window::registerCallbacks(Config &config) {
+        // callbacks are always called from the main thread, so they must be passed to the group to be dispatched from
+        // the correct thread the window uses to render
+
         glfwSetWindowCloseCallback(this->glfwWindow, [](GLFWwindow *window) {
             auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
             // reset flag and push event to properly terminate the window
@@ -173,9 +176,13 @@ namespace nyx {
             auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
             thisWindow->windowWidth = width;
             thisWindow->windowHeight = height;
-            glfwMakeContextCurrent(thisWindow->glfwWindow);
-            thisWindow->application->resize(width, height);
-            glfwMakeContextCurrent(nullptr);
+
+
+            thisWindow->group.pushInternalWindowEvent(
+                    new InternalFramebufferSizeEvent(*thisWindow->windowHandle, width, height)
+            );
+
+            //thisWindow->application->resize(width, height);
         });
 
         if (this->windowCallback != nullptr) { // TODO: change to use InternalEvents
