@@ -28,6 +28,7 @@ namespace nyx {
         glfwSetWindowUserPointer(glfwWindow, this);
         glfwMakeContextCurrent(this->glfwWindow);
         if(config.vsync) glfwSwapInterval(1);
+        else glfwSwapInterval(0);
         glfwMakeContextCurrent(nullptr);
         for (auto &p: this->plugins) p->onWindowCreated(config, this->glfwWindow);
 
@@ -176,13 +177,9 @@ namespace nyx {
             auto *thisWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
             thisWindow->windowWidth = width;
             thisWindow->windowHeight = height;
-
-
             thisWindow->group.pushInternalWindowEvent(
                     new InternalFramebufferSizeEvent(*thisWindow->windowHandle, width, height)
             );
-
-            //thisWindow->application->resize(width, height);
         });
 
         if (this->windowCallback != nullptr) { // TODO: change to use InternalEvents
